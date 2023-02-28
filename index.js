@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const uri = `mongodb+srv://imran:folderUser@cluster0.cnzafpx.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.db_user}:${process.env.db_pass}@cluster0.cnzafpx.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 async function run() {
@@ -30,14 +30,6 @@ async function run() {
             res.send(result)
         });
 
-        //Get only one folder details
-        app.get('/folder/:id', async (req, res) => {
-            const folderId = req.params.id;
-            const query = { _id: ObjectId(folderId) }
-            const result = await folderCollection.findOne(query);
-            res.send(result)
-        });
-
         // Delete folder
         app.delete('/folders/:id', async (req, res) => {
             const folderId = req.params.id;
@@ -45,11 +37,13 @@ async function run() {
             if (folderId === root) {
                 res.status(400).send({ message: 'Cannot delete root folder' });
             } else {
-                const query = { _id: new ObjectId(folderId)};
+                const query = { _id: new ObjectId(folderId) };
                 const result = await folderCollection.deleteOne(query);
                 res.send(result);
             }
         });
+
+       
     }
     finally {
     }
